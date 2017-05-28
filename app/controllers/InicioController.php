@@ -5,8 +5,8 @@ class InicioController extends ControllerBase
 	public function indexAction()
 	{
 		$user = parent::gSession("usuario");
-		$u = Usuario::findFirst("id = $user");
-		$titulo = "Bienvenid@ $u->usuario";
+		$u = Clientes::findFirst("id = $user");
+		$titulo = "Bienvenid@ $u->nombre";
 		parent::view($titulo);
 	}
 	

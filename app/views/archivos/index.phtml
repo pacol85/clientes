@@ -1,0 +1,24 @@
+<script type="text/javascript" language="javascript" class="init">
+var listClientes;
+var listD;
+$(document).ready(function() {
+        //$('#clientes').DataTable();			
+        //$('.edit').hide();
+        var texto = $('#listclientes').val();
+        listClientes = texto.split(";");
+         $("#cliente").autocomplete({
+                    source:[listClientes]
+                  });
+} );
+<?php echo $this->view->js;?>
+
+	
+</script>
+
+<?php 
+echo $this->view->titulo;
+echo $this->getContent();
+echo $this->view->form;
+echo $this->view->botones;
+echo $this->view->tabla;
+?>

@@ -17,29 +17,24 @@ class IndexController extends ControllerBase
     		//$this->view->disable();
 		$user = parent::gPost("user");
 		$user = trim($user);
-		$user = strtoupper($user);
+		//$user = strtoupper($user);
 		$pass = parent::gPost("pass");
 		$pass = trim($pass);
-		// Ver si existe el usuario y contraseña
-		$success = Usuario::find("usuario ='$user' and estado = 1");
+		// Ver si existe el usuario y contraseï¿½a
+		$success = Clientes::find("usuario ='$user'");
 		 
 		if ($success->count() < 2 && $success->count() > 0) {
-			$usuario = new Usuario();
-			$usuario = $success->getFirst();
-	
+                    $usuario = new Clientes();
+                    $usuario = $success->getFirst();
+
 			//validar contrasena
-			if(parent::checkPass($pass, $usuario->clave)){
-				$this->session->set("usuario", $usuario->id);				
-				if(parent::checkPass($pass, "",true)){
-					parent::forward("index", "newPass");					
-				}else{
-					parent::forward("inicio", "index");					
-				}
-			}else{
-				parent::msg("Credenciales suministradas son err&oacute;neas");
-				parent::forward("index", "retry");
-			}
-			 
+                    if($usuario->clave == $pass){//parent::checkPass($pass, $usuario->clave)){
+			$this->session->set("usuario", $usuario->id);
+                        parent::forward("inicio", "index");								
+                    }else{
+			parent::msg("Credenciales suministradas son err&oacute;neas");
+			parent::forward("index", "retry");
+                    }			 
 		} else {
 			parent::msg("Usuario no encontrado");
 			parent::forward("index", "retry");

@@ -47,19 +47,19 @@ class ControllerBase extends Controller {
 		}
 		$elem = "";
 		switch ($t) {
-			case "i" :
+                        case "i" : //imagen
 				$elem = $elem . "<img id='$n[0]' src='$l' onclick ='$n[1]'>";
 				break;
-			case "hr" :
+                        case "hr" : //elemento <hr>
 				$elem = $elem . "<hr>";
 				break;
-			case "h" :
+                        case "h" : //hidden
 				$elem = $elem . $this->tag->hiddenField ( array (
 						"$n[0]",
 						"value" => $l 
 				) );
 				break;
-			case "s" :
+                        case "s" : // submit
 				$elem = $elem . '<div class="form-group main"><div class="col-sm-12" align="center" ' . $dId . '>';
 				$elem = $elem . $this->tag->submitButton ( array (
 						"$l",
@@ -67,27 +67,27 @@ class ControllerBase extends Controller {
 				) );
 				$elem = $elem . '</div></div>';
 				break;
-			case "bg" :
+                        case "bg" : //button
 				$elem = $elem . '<div class="form-group edit"><div class="col-sm-12" align="center" ' . $dId . '>';
 				foreach ( $n as $b ) {
 					$elem = $elem . '<button class="btn btn-default" id="' . $b [0] . '" name="' . $b [0] . '" onclick="' . $b [1] . '">' . $b [2] . '</button> ';
 				}
 				$elem = $elem . '</div></div>';
 				break;
-			case "h2" :
+                        case "h2" : //header 2
 				$elem = $elem . '<h2>' . $l . '</h2>';
 				break;
-			case "h1" :
+                        case "h1" : //header 1
 				$elem = $elem . '<div class="page-header" ' . $dId . '><h1>' . $l . '</h1></div>';
 				break;
-			case "l" :
+                        case "l" : //label
 				$elem = $elem . '<div class="form-group"><label for="' . $l . '" class="col-sm-2 control-label">' . $l . '</label>';
 				$elem = $elem . '<div class="col-sm-10 control-label" ' . $dId . '>' . $n [0] . '</div></div>';
 				break;
-			case "lf" :
+                        case "lf" : //otro label
 				$elem = $elem . '<div class="form-group" ' . $dId . '><label for="' . $n [0] . '" class="col-sm-12">' . $l . '</label></div>';
 				break;
-			case "enter" :
+                        case "enter" : // enter
 				$elem = $elem . '<nobr>&nbsp;</nobr>';
 				break;			
 			default :
@@ -98,7 +98,7 @@ class ControllerBase extends Controller {
 				$elem = $elem . $l . '</label><div class="col-sm-10" ' . $dId . '>';
 				// agrega nombre campo
 				switch ($t) {
-					case "t" :
+                                        case "t" : // text field
 						if ($r == 1) {
 							$elem = $elem . $this->tag->textField ( array (
 									"$n[0]",
@@ -118,7 +118,7 @@ class ControllerBase extends Controller {
 							) );
 						}
 						break;
-					case "tv" :
+                                        case "tv" : //textfield con un value
 						if ($r == 1) {
 							$elem = $elem . $this->tag->textField ( array (
 									"$n[0]",
@@ -140,7 +140,7 @@ class ControllerBase extends Controller {
 							) );
 						}
 						break;
-					case "m" :
+                                        case "m" : //number (money)
 						$elem = $elem . $this->tag->textField ( array (
 								"$n[0]",
 								"size" => 30,
@@ -149,7 +149,7 @@ class ControllerBase extends Controller {
 								"value" => "$n[1]" 
 						) );
 						break;
-					case "e" :
+                                        case "e" : //email mask
 						$elem = $elem . $this->tag->textField ( array (
 								"$n[0]",
 								"size" => 30,
@@ -157,7 +157,7 @@ class ControllerBase extends Controller {
 								"id" => "$n[0]" 
 						) );
 						break;
-					case "p" :
+                                        case "p" : //password field
 						$elem = $elem . $this->tag->passwordField ( array (
 								"$n[0]",
 								"size" => 30,
@@ -165,7 +165,7 @@ class ControllerBase extends Controller {
 								"id" => "$n[0]" 
 						) );
 						break;
-					case "d" :
+                                        case "d" : //fecha
 						if (count ( $n ) > 1) {
 							$elem = $elem . $this->tag->dateField ( array (
 									"$n[0]",
@@ -185,7 +185,7 @@ class ControllerBase extends Controller {
 									));
 						}
 						break;
-					case "sdb" :
+                                        case "sdb" : //select de base de datos
 						if (count ( $n ) > 3) {
 							$elem = $elem . $this->tag->select ( array (
 									"$n[0]",
@@ -205,7 +205,7 @@ class ControllerBase extends Controller {
 							) );
 						}
 						break;
-					case "sel" :
+                                        case "sel" : //select con datos
 						if (count ( $n ) > 2) {
 							$elem = $elem . $this->tag->select ( array (
 									"$n[0]",
@@ -223,7 +223,7 @@ class ControllerBase extends Controller {
 							) );
 						}
 						break;
-					case "r" :
+                                        case "r" : // radio button
 						foreach ( $n [1] as $rb ) {
 							$elem = $elem . "<label for='$rb'>$rb</label>";
 							$elem = $elem . $this->tag->radioField ( array (
@@ -234,7 +234,7 @@ class ControllerBase extends Controller {
 							$elem = $elem . "&nbsp;";
 						}
 						break;
-					case "ls" :
+                                        case "ls" : //live search /fallo
 						$elem = $elem . $this->tag->textField ( array (
 								"$n[0]",
 								"size" => 30,
@@ -244,7 +244,7 @@ class ControllerBase extends Controller {
 						) );
 						$elem = $elem."</div><div id=\"livesearch\">";
 						break;	
-					case "cf" :
+                                        case "cf" : //checkfield
 						$elem = $elem . $this->tag->checkField(array ( 
 							"$n[0]",
 							"value" => "$n[1]",
@@ -253,7 +253,7 @@ class ControllerBase extends Controller {
 							"class" => "$n[3]"
 						));
 						break;
-					case "tcb" :
+                                        case "tcb" : //textfield  con mascara regex
 						if ($r == 1) {
 							$elem = $elem . $this->tag->textField ( array (
 									"$n[0]",
@@ -273,7 +273,7 @@ class ControllerBase extends Controller {
 							) );
 						}
 						break;
-					case "tvcb" :
+                                        case "tvcb" : //igual al anterior con valor
 						if ($r == 1) {
 							$elem = $elem . $this->tag->textField ( array (
 									"$n[0]",
@@ -294,6 +294,9 @@ class ControllerBase extends Controller {
 									"data-bind" => "value: regexInput, valueUpdate: 'keyup'"
 							) );
 						}
+						break;
+                                        case "f" :
+						$elem = $elem.$this->tag->fileField("$n[0]");
 						break;
 				}
 				$elem = $elem . '</div></div>';
