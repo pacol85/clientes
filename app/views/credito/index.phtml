@@ -1,0 +1,93 @@
+<script type="text/javascript" language="javascript" class="init">
+	$(document).ready(function() {
+		$('#credito').DataTable();
+		$('#titems').DataTable();
+		$('.edit').hide();		
+	} );
+
+	function addValor(id) {
+		var name = "#check" + id;
+		var text = "#n" + id;
+		var jsona = $('#mcb').val();
+
+		//alert(jsona);
+		var arreglo = jsonToArray(jsona);
+		//arreglo = jsona;
+		
+		if($(name).hasClass("suma")){
+			$(name).removeClass("suma");
+			$(name).addClass("resta");
+			var valor = $(text).val();
+			arreglo[parseInt(id)] = valor;
+		}else{
+			$(name).removeClass("resta");
+			$(name).addClass("suma");
+			arreglo[parseInt(id)] = 0;
+		}
+		/*
+		var checkedValues = $('.cbitems:checked').map(function() {
+		    return this.value;
+		}).get();
+
+		var boxes; // = checkedValues.values();
+		var tb = "";
+		var i;
+		for (i = 0; i < checkedValues.length; i++) {
+			var f = "#n" + checkedValues[i];
+			tb += $(f).val() + ",";
+		}
+		tb = tb.substring(0, tb.length-1);
+		//alert(tb);
+		*/
+
+		jsona = arrayToJson(arreglo);
+		$('#mcb').val(jsona);//jsona);
+		
+		
+		$.ajax({
+			type: "POST",
+			url: "credito/calcular", 
+			data: {cuotas: $('#cuotas').val(), items: jsona},
+			dataType: "json",
+			success: function(result){
+				var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
+				$("#monto").val(jsondata.monto);
+				$("#prima").val(jsondata.prima);				
+			}});
+	};
+
+	function arrayToJson(map) {
+		if(map == "" || map == null || map == []){
+			return '{}';
+		}else{
+			return JSON.stringify(map);
+		}
+        
+    }
+    function jsonToArray(jsonStr) {
+    	if(jsonStr == '{}' || jsonStr == null || jsonStr == ""){
+        	var array = [];
+			return array;
+		}else{
+			return JSON.parse(jsonStr);
+		}
+        
+    }
+	
+	<?php echo $this->view->js;?>
+</script>
+<style>
+.ditems {
+    position: relative;
+    clear: both;
+    width: 90%;
+    left: 110px;
+}
+</style>
+<?php 
+echo $this->view->titulo;
+echo $this->getContent();
+echo $this->view->form;
+echo $this->view->botones;
+echo $this->view->tabla;
+?>
