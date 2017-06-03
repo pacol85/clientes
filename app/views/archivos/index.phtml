@@ -1,10 +1,9 @@
 <script type="text/javascript" language="javascript" class="init">
 var listClientes;
-var listD;
 $(document).ready(function() {
         //$('#clientes').DataTable();			
         //$('.edit').hide();
-        var texto = $('#listclientes').val();
+        var texto = $('#listClientes').val();
         listClientes = texto.split(";");
          $("#cliente").autocomplete({
                     source:[listClientes]

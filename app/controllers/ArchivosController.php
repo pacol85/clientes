@@ -17,7 +17,7 @@ class ArchivosController extends ControllerBase
         
         $campos = [
             ["t", ["cliente"], "Cliente"],
-            ["h", ["id"], ""],
+            ["h", ["codigo"], ""],
             ["h", ["listClientes"], $data],
             ["f", ["archivo"], "Archivo"],
             ["s", ["guardar"], "Guardar"]
@@ -43,6 +43,47 @@ class ArchivosController extends ControllerBase
     	$tabla = parent::ftable($tabla);*/
         $form = parent::multiForm($campos, "archivos/subir", "form1");
     	parent::view("Asignar Archivos a Usuarios", $form);//, $tabla, [$fields, $otros, $jsBotones]);
+    }
+    
+    public function subirACtion(){
+        $texto = "";
+        if(parent::vPost("cliente")){
+            //Verificar primero el archivo
+            //Phalcon upload file
+            if (true == $this->request->hasFiles() && $this->request->isPost()) {
+                $archive = new Archivos();
+                $codigo = substr(parent::gPost("cliente"), strpos(parent::gPost("cliente"), " - ")+3);
+                $texto = $codigo;
+                $cliente = Clientes::findFirst("codigo like '$codigo'");
+                $archive->cliente = $cliente->id;
+                $archive->fsubida = parent::fechaHoy(true);
+                
+                $upload_dir = APP_PATH . '\\public\\excel\\'. "$cliente->id\\" ;
+
+                foreach ($this->request->getUploadedFiles() as $file) {
+                    if(strlen($file->getName()) > 0){
+                        $archive->nombre = substr($file->getName(), strpos($file->getName(), ".") -1);
+                        $archive->url = $file->getName();
+                        if(!file_exists($upload_dir)){
+                            mkdir($upload_dir);
+                        }
+                        $file->moveTo($upload_dir . $archive->url);    					
+                    }    				
+                }
+                if($archive->save()){
+                    parent::msg("Archivo fue subido exitosamente", "s");
+                }else{
+                    parent::msg($codigo);
+                    parent::msg("","db");
+                }
+            }else{
+                parent::msg("No se encontr&oacute; archivo para subirse");
+            }
+            
+        }else{
+            parent::msg("Debe seleccionarse un cliente existente");
+        }
+        return parent::forward("archivos", "index");
     }
     
     public function guardarAction(){
