@@ -1,13 +1,7 @@
 <script type="text/javascript" language="javascript" class="init">
 var listClientes;
 $(document).ready(function() {
-        $('#tusuarios').DataTable();			
-        //$('.edit').hide();
-        var texto = $('#listClientes').val();
-        listClientes = texto.split(";");
-         $("#cliente").autocomplete({
-                    source:[listClientes]
-                  });
+        $('#tarchivos').DataTable();        
 } );
 <?php echo $this->view->js;?>
 
@@ -17,6 +11,7 @@ $(document).ready(function() {
 <?php 
 echo $this->view->titulo;
 echo $this->getContent();
+echo $this->view->regresar;
 echo $this->view->form;
 echo $this->view->botones;
 echo $this->view->tabla;

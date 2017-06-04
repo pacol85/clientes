@@ -21,28 +21,28 @@ class ArchivosController extends ControllerBase
             ["h", ["listClientes"], $data],
             ["f", ["archivo"], "Archivo"],
             ["s", ["guardar"], "Guardar"]
-        ];/*
-        $head = ["Nombre", "Cuenta", "Saldo", "Tel&eacute;fono","Direcci&oacute;n", "Acciones"];
-        $tabla = parent::thead("bancos", $head);
-        $bancos = Bancos::find();
-        foreach ($bancos as $r){
+        ];
+        
+        //crear tabla de usuarios y cantidad de archivos subidos
+        $head = ["C&oacute;digo", "Nombre", "Usuario", "Cant. Archivos", "Acciones"];
+        $tabla = parent::thead("tusuarios", $head);
+        foreach ($usuarios as $u){
+            
+            //cant archivos
+            $arc = Archivos::find("cliente = $u->id");
+            
             $tabla = $tabla.parent::tbody([
-                $r->nombre,
-                $r->telefono,
-                $r->direccion,
-                parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->telefono."','".$r->cuenta."','".$r->saldo."','".$r->direccion."','".$r->direccion."');", "Editar")." | ".
-                parent::a(1, "bancos/eliminar", "Eliminar", [["id", $r->id]])
+                $u->codigo,
+                $u->nombre,
+                $u->usuario,
+                count($arc),
+                parent::a(1, "archivos/docs/$u->id", "Listar archivos")
             ]);
         }
 
-        //js
-        $fields = ["id", "nombre", "telefono", "direccion", "cuenta", "saldo"];
-        $otros = "";
-        $jsBotones = ["form1", "bancos/edit", "bancos"];
-		
-    	$tabla = parent::ftable($tabla);*/
+        $tabla = parent::ftable($tabla);
         $form = parent::multiForm($campos, "archivos/subir", "form1");
-    	parent::view("Asignar Archivos a Usuarios", $form);//, $tabla, [$fields, $otros, $jsBotones]);
+    	parent::view("Asignar Archivos a Usuarios", $form, $tabla);//, $tabla, [$fields, $otros, $jsBotones]);
     }
     
     public function subirACtion(){
@@ -62,7 +62,7 @@ class ArchivosController extends ControllerBase
 
                 foreach ($this->request->getUploadedFiles() as $file) {
                     if(strlen($file->getName()) > 0){
-                        $archive->nombre = substr($file->getName(), strpos($file->getName(), ".") -1);
+                        $archive->nombre = substr($file->getName(), 0,strpos($file->getName(), "."));
                         $archive->url = $file->getName();
                         if(!file_exists($upload_dir)){
                             mkdir($upload_dir);
@@ -86,6 +86,101 @@ class ArchivosController extends ControllerBase
         return parent::forward("archivos", "index");
     }
     
+    public function docsAction($id)
+    {
+    
+        //tabla de archivos del usuario
+        $cliente = Clientes::findFirst("id = $id");
+        $upload_dir = APP_PATH . '\\public\\excel\\'. "$cliente->id\\" ;
+        $head = ["Corr.", "Nombre Archivo", "Tama&ntilde;o", "F. Subida", "Descargas", "Acciones"];
+        $tabla = parent::thead("tarchivos", $head);
+        $archivos = Archivos::find("cliente = $id");
+        $corr = 1;
+        foreach ($archivos as $a){
+            $tabla = $tabla.parent::tbody([
+                $corr,
+                $a->nombre,
+                parent::FileSizeConvert($upload_dir.$a->url),
+                parent::mysqlDate($a->fsubida),
+                $a->descargas,
+                parent::a(1, "archivos/descargar/$a->id", "Descargar")." | ".
+                parent::a(1, "archivos/eliminar/$a->id", "Eliminar")
+            ]);
+            $corr++;
+        }
+
+        $tabla = parent::ftable($tabla);
+        //$form = parent::multiForm($campos, "archivos/subir", "form1");
+        $this->view->regresar = parent::a(1, "archivos/index", "Regresar");
+    	parent::view("Archivos de $cliente->nombre - $cliente->codigo", "", $tabla);        
+    }
+    
+    public function eliminarAction($id)
+    {
+        $archivo = Archivos::findFirst("id = $id");
+        $nombre = $archivo->nombre;
+        $cliente = $archivo->cliente;
+        $url = APP_PATH . '\\public\\excel\\'."$cliente\\$archivo->url";
+        
+        if($archivo->delete()){
+            //elminar archivo
+            if(unlink($url)){
+                parent::msg("Archivo eliminado exitosamente", "s");
+            }else{
+                parent::msg("Registro se elimin&oacute; pero el archivo f&iacute;sico no se pudo eliminar", "w");
+            }
+        }else{
+            parent::msg("","db");
+        }
+        parent::forward("archivos", "docs", ["$cliente"]);
+    }
+    
+    public function descargarAction($id){
+        $this->view->disable();
+        $archivo = Archivos::findFirst("id = $id");
+        $cliente = $archivo->cliente;
+        $url = APP_PATH . '\\public\\excel\\'."$cliente\\$archivo->url";
+        parent::download($archivo->url, $url);
+    }
+    
+    public function archivosUsuarioAction($id)
+    {
+    
+        //tabla de archivos del usuario
+        $cliente = Clientes::findFirst("id = $id");
+        $upload_dir = APP_PATH . '\\public\\excel\\'. "$cliente->id\\" ;
+        $head = ["Corr.", "Nombre Archivo", "Tama&ntilde;o", "F. Subida", "Descargar"];
+        $tabla = parent::thead("tarchivos", $head);
+        $archivos = Archivos::find("cliente = $id");
+        $corr = 1;
+        foreach ($archivos as $a){
+            $tabla = $tabla.parent::tbody([
+                $corr,
+                $a->nombre,
+                parent::FileSizeConvert($upload_dir.$a->url),
+                parent::mysqlDate($a->fsubida),
+                parent::a(1, "archivos/descargarUser/$a->id", "Descargar")
+            ]);
+            $corr++;
+        }
+
+        $tabla = parent::ftable($tabla);
+        //$form = parent::multiForm($campos, "archivos/subir", "form1");
+        //$this->view->regresar = parent::a(1, "archivos/index", "Regresar");
+    	parent::view("Archivos", "", $tabla);        
+    }
+    
+    public function descargarUserAction($id){
+        $this->view->disable();
+        $archivo = Archivos::findFirst("id = $id");
+        $cliente = $archivo->cliente;
+        //agregar 1 a la descarga
+        $archivo->descargas = $archivo->descargas+1;
+        $archivo->update();
+        $url = APP_PATH . '\\public\\excel\\'."$cliente\\$archivo->url";
+        parent::download($archivo->url, $url);
+    }
+    
     public function guardarAction(){
     	if(parent::vPost("nombre")){
     		$bancos = new Bancos();
@@ -105,22 +200,6 @@ class ArchivosController extends ControllerBase
     	parent::forward("bancos", "index");
     }
     
-    public function eliminarAction(){
-    	$bancos = Bancos::findFirst("id = ".parent::gReq("id"));
-    	$cheques = Cheques::find(array("banco = $bancos->id"));
-    	if(count($cheques) > 0){
-    		parent::msg("No se puede eliminar un Banco que tenga asociado uno o m&aacute;s cheques", "w");
-    	}else {
-    		$nBancos = $bancos->nombre;    		 
-    		if($bancos->delete()){
-    			parent::msg("Se elimin&oacute; el Banco: $nBancos", "s");
-    		}else{
-    			parent::msg("","db");
-    		}
-    	}    	
-    	parent::forward("bancos", "index");
-    }
-
     public function editAction(){
     	if(parent::vPost("id")){
     		$bancos = Bancos::findFirst("id = ".parent::gPost("id"));

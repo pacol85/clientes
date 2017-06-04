@@ -90,7 +90,7 @@
     $usuario = $this->session->get("usuario");
     if($usuario != null && $usuario != ""){
         $this->session->set("error", "");
-        $texto = "";//armaMenu($usuario);
+        $texto = armaMenu($usuario);
         //$u = Usuario::findFirst($usuario);
         //$p = Parametros::findFirst("parametro = 'initialPass'");
         //if($p->valor != $u->clave){
@@ -112,8 +112,45 @@
     }
 
     function armaMenu($uid) {
-        $user = Usuario::findFirst("id = $uid");
-        $m = new Menu();
+        $user = Clientes::findFirst("id = $uid");
+        $html = "";
+        if($user->admin == 1){
+            $html = '
+                <div class="pure-menu pure-menu-horizontal">
+                    <ul class="pure-menu-list">
+                    
+                        <li class="pure-menu-item">
+                            <a href="inicio/index" class="pure-menu-link">Inicio</a>
+                        </li>
+                        <li class="pure-menu-item">
+                            <a href="archivos/index" class="pure-menu-link">Adm. Archivos</a>
+                        </li>
+                    
+                        <li class="pure-menu-item">
+                            <a href="index/logOff" class="custom-link-exit">Salir</a>
+                        </li>
+                    </ul>
+                    <div class="logoRight"><img alt="logo" src="images/logo.png"></div>
+                </div>';
+        }else{
+            $html = '
+                <div class="pure-menu pure-menu-horizontal">
+                    <ul class="pure-menu-list">
+                    
+                        <li class="pure-menu-item">
+                            <a href="inicio/index" class="pure-menu-link">Inicio</a>
+                        </li>
+                        <li class="pure-menu-item">
+                            <a href="archivos/archivosUsuario/'.$uid.'" class="pure-menu-link">Archivos</a>
+                        </li>
+                        <li class="pure-menu-item">
+                            <a href="index/logOff" class="custom-link-exit">Salir</a>
+                        </li>
+                    </ul>
+                    <div class="logoRight"><img alt="logo" src="images/logo.png"></div>
+                </div>';
+        }
+        /*$m = new Menu();
         $sql = "select * from menu where parent is null and id in (select x.menu from menu_x_rol x where x.rol = '".$user->rol_id."')";
         $titulos = new Resultset(null, $m, $m->getReadConnection()->query($sql));
         //$titulos = Menu::find(array("parent is null and id in (select x.menu from menu_x_rol x where x.rol = $user->rol_id)", "order" => "id"));
@@ -147,7 +184,7 @@
                     }
             }    		
         }
-        $html = $html.'</ul><div class="logoRight"><img alt="logo" src="images/logo.png"></div></div>';
+        $html = $html.'</ul><div class="logoRight"><img alt="logo" src="images/logo.png"></div></div>';*/
         return $html;
     }	 
 ?>

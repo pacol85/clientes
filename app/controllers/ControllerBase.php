@@ -1,5 +1,7 @@
 <?php
 use Phalcon\Mvc\Controller;
+use Phalcon\HTTP\Response;
+
 class ControllerBase extends Controller {
 	/**
 	 * Main init function
@@ -1010,4 +1012,82 @@ class ControllerBase extends Controller {
 				return ceil($num);
 			}
 		}
+    
+    /**
+    * Converts bytes into human readable file size.
+    *
+    * @param string $archivo
+    * @return string human readable file size (2,87 Мб)
+    * @author Mogilev Arseny
+    */
+    function FileSizeConvert($archivo)
+    {
+        $bytes = filesize($archivo);
+        $bytes = floatval($bytes);
+            $arBytes = array(
+                0 => array(
+                    "UNIT" => "TB",
+                    "VALUE" => pow(1024, 4)
+                ),
+                1 => array(
+                    "UNIT" => "GB",
+                    "VALUE" => pow(1024, 3)
+                ),
+                2 => array(
+                    "UNIT" => "MB",
+                    "VALUE" => pow(1024, 2)
+                ),
+                3 => array(
+                    "UNIT" => "KB",
+                    "VALUE" => 1024
+                ),
+                4 => array(
+                    "UNIT" => "B",
+                    "VALUE" => 1
+                ),
+            );
+
+        foreach($arBytes as $arItem)
+        {
+            if($bytes >= $arItem["VALUE"])
+            {
+                $result = $bytes / $arItem["VALUE"];
+                $result = strval(round($result, 2))." ".$arItem["UNIT"];//str_replace(".", "," , strval(round($result, 2)))." ".$arItem["UNIT"];
+                break;
+            }
+        }
+        return $result;
+    }
+    
+    /**
+     * Sacar fecha de MySQL
+     * 
+     */
+    function mysqlDate($fecha, $conHora = false){
+        $phpdate = strtotime( $fecha );
+        if($conHora){
+            $mysqldate = date( 'd-m-Y H:i:s', $phpdate );
+        }else{
+            $mysqldate = date( 'd-m-Y', $phpdate );
+        }
+        return $mysqldate;
+    }
+    
+    /**
+     * Download file
+     */
+    public function download($file, $path)
+    { 
+        $response = new Response();
+        //$path = 'path/to-your-file/'.$file;
+        $filetype = filetype($path);
+        $filesize = filesize($path);   
+        $response->setHeader("Cache-Control", 'must-revalidate, post-check=0, pre-check=0');
+        $response->setHeader("Content-Description", 'File Download');
+        $response->setHeader("Content-Type", $filetype);
+        $response->setHeader("Content-Length", $filesize);
+        $response->setFileToSend($path, str_replace(" ","-",$file), true);
+        $response->send();
+        die();
+    }
 }
